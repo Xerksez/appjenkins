@@ -31,7 +31,7 @@ pipeline {
          stage('Run web server') {
             steps {
                 // Skopiuj plik index.html do katalogu roboczego w kontenerze
-                sh 'cp index.html /app'
+                sh 'cp helloworld.html /app'
 
                 // Uruchom prosty serwer HTTP do serwowania plików statycznych (index.html)
                 script {
