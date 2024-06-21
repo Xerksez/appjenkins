@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        docker {
+        dockerContainer {
             image 'xerksez/obraz:latest'
             args '-u root' 
              args '-v /var/run/docker.sock:/var/run/docker.sock'
