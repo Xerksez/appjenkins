@@ -1,55 +1,39 @@
 pipeline {
-    agent any
+    agent {
+        docker {
 
+            image 'xerksez/obraz:latest'
+
+            args '-u root' // Jeśli potrzebujesz uruchamiać polecenia jako root (opcjonalne)
+
+            // args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
     stages {
-        stage('Checkout') {
+        stage('Pobieranie kodu') {
             steps {
-                // Pobranie kodu z repozytorium GitHub
-                git 'https://github.com/Xerksez/appjenkins.git'
+                // Pobierz kod z repozytorium GitHub
+                git 'https://github.com/xerksez/appjenkinsgit'
             }
         }
-
-        stage('Build and Run') {
-            environment {
-                DOCKER_IMAGE = 'jenkins-blueocean:custom' // Nazwa twojego obrazu Dockera z Jenkinsem i zainstalowanymi narzędziami
-            }
+        stage('Instalacja i uruchomienie aplikacji') {
             steps {
-                // Kompilacja (instalacja zależności) i uruchomienie aplikacji
-                script {
-                    docker.image(DOCKER_IMAGE).inside {
-                        sh 'npm install' // Instalacja zależności
-                        sh 'npm start &' // Uruchomienie aplikacji w tle
-                    }
-                }
+                // Kompilacja (np. npm install) i uruchomienie aplikacji
+                sh 'npm install'
+                sh 'npm start'
             }
         }
-
-        stage('Unit Tests') {
-            environment {
-                DOCKER_IMAGE = 'jenkins-blueocean:custom'
-            }
+        stage('Testy jednostkowe') {
             steps {
-                // Wykonanie testów jednostkowych wraz z raportowaniem
-                script {
-                    docker.image(DOCKER_IMAGE).inside {
-                        sh 'npm test' // Wykonanie testów jednostkowych
-                        junit '**/test-results/*.xml' // Raportowanie wyników testów
-                    }
-                }
+                // Wykonaj testy jednostkowe (np. npm test) i raportuj
+                sh 'npm test'
+                junit 'results/**/*.xml'
             }
         }
-
-        stage('ESLint Check') {
-            environment {
-                DOCKER_IMAGE = 'jenkins-blueocean:custom'
-            }
+        stage('ESLint') {
             steps {
-                // Sprawdzanie kodu za pomocą ESLint
-                script {
-                    docker.image(DOCKER_IMAGE).inside {
-                        sh 'npm run lint' // Uruchomienie ESLint
-                    }
-                }
+                // Sprawdź kod za pomocą ESLint
+                sh 'eslint .'
             }
         }
     }
