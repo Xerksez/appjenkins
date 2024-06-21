@@ -28,5 +28,19 @@ pipeline {
                 sh 'eslint .'
             }
         }
+         stage('Run web server') {
+            steps {
+                // Skopiuj plik index.html do katalogu roboczego w kontenerze
+                sh 'cp index.html /app'
+
+                // Uruchom prosty serwer HTTP do serwowania plików statycznych (index.html)
+                script {
+                    docker.image('node:latest').inside('-p 8080:8080') {
+                        sh 'npx http-server -p 8080 /app'
+                    }
+                }
+            }
+        }
     }
 }
+
